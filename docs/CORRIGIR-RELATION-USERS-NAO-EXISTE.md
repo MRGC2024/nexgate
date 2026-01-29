@@ -41,7 +41,26 @@ npm run seed
 
 Espere aparecer: **"Seed concluído."** e as credenciais (admin@nexgate.local / admin123).
 
-### 3. Testar o login
+### 3. Se der "self-signed certificate in certificate chain"
+
+O backend foi ajustado para aceitar o certificado do Railway ao rodar migrate/seed do PC. **Atualize o código** (git pull ou pegue a versão mais recente do repo) e rode de novo:
+
+```powershell
+$env:DATABASE_URL = "sua-url-publica?sslmode=require"
+npm run migrate:run
+npm run seed
+```
+
+Se ainda falhar, rode com Node aceitando certificado (só para esse comando):
+
+```powershell
+$env:NODE_TLS_REJECT_UNAUTHORIZED = "0"
+npm run migrate:run
+npm run seed
+$env:NODE_TLS_REJECT_UNAUTHORIZED = "1"
+```
+
+### 4. Testar o login
 
 Abra o site na Vercel e faça login com **admin@nexgate.local** / **admin123**. O erro "relation users does not exist" deve sumir.
 

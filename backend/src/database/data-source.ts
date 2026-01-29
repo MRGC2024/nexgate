@@ -11,7 +11,11 @@ const common: Pick<DataSourceOptions, 'synchronize' | 'logging' | 'entities' | '
 export function getDataSourceConfig(): DataSourceOptions {
   const url = process.env.DATABASE_URL;
   if (url) {
-    return { type: 'postgres', url, ...common } as DataSourceOptions;
+    // Aceitar certificado autoassinado (ex.: Railway) ao rodar migrate/seed do PC
+    const ssl = url.includes('railway') || url.includes('rlwy.net')
+      ? { rejectUnauthorized: false }
+      : undefined;
+    return { type: 'postgres', url, ssl, ...common } as DataSourceOptions;
   }
   return {
     type: 'postgres',
