@@ -23,6 +23,21 @@ O **console do navegador** só mostra que a API respondeu 500. O **erro real** (
 
 ---
 
+## Erro "relation \"users\" does not exist"
+
+Significa que **as tabelas não existem** no banco do Railway (migrações nunca rodaram nesse banco). Rode **no seu PC** com a **mesma** `DATABASE_URL` que está na API no Railway:
+
+```powershell
+cd "c:\Users\drrod\Downloads\PROJETO GATEWAY\backend"
+$env:DATABASE_URL = "postgresql://..."   # cole a URL do Postgres do Railway
+npm run migrate:run
+npm run seed
+```
+
+Guia completo: **[CORRIGIR-RELATION-USERS-NAO-EXISTE.md](CORRIGIR-RELATION-USERS-NAO-EXISTE.md)**.
+
+---
+
 ## Causa comum: seed não rodou no banco do Railway
 
 Se não existem usuários (admin/demo) no banco que a API usa, o login pode falhar de formas estranhas. Rode **uma vez** no seu PC, com a **mesma** `DATABASE_URL` que está na API no Railway:
