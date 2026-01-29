@@ -1,7 +1,5 @@
 # NEXGATE - Docker Compose (dev)
-# Uso: docker-compose up -d
-
-version: '3.8'
+# Uso: docker compose up -d
 
 services:
   postgres:

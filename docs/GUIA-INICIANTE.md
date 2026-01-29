@@ -166,21 +166,30 @@ Agora vamos subir o banco de dados, a API, o worker e o frontend no seu PC.
 
 ---
 
-## Passo 2.1 – Subir Postgres e Redis com Docker
+## Passo 2.1 – Subir Postgres, Redis e MinIO com Docker
 
 1. **Onde:** terminal na **raiz do projeto** (`PROJETO GATEWAY`).
 2. Se não estiver nessa pasta, digite:
    ```powershell
    cd "c:\Users\drrod\Downloads\PROJETO GATEWAY"
    ```
-3. Digite:
+3. **Antes de rodar:** o **Docker Desktop** precisa estar **aberto e rodando** (ícone na bandeja do Windows sem animação de “iniciando”). Se não estiver, abra pelo Menu Iniciar e espere até ficar pronto.
+4. Digite **um** dos comandos abaixo (depende da sua versão do Docker):
+   ```powershell
+   docker compose up -d
+   ```
+   ou, se der erro “comando não reconhecido”:
    ```powershell
    docker-compose up -d
    ```
    **Enter.**
 
-4. **O que deve acontecer:** o Docker baixa imagens e sobe os containers. No final pode aparecer algo como “Creating nexgate-postgres … done”, “Creating nexgate-redis … done”.  
-   Se aparecer “docker-compose not found” ou “command not found”, o Docker Desktop não está instalado; instale e tente de novo.
+5. **O que deve acontecer:** o Docker baixa as imagens (Postgres, Redis, MinIO) e sobe os containers. No final pode aparecer algo como “Creating nexgate-postgres … done”, “Creating nexgate-redis … done”, “Creating nexgate-minio … done”.
+
+**Se aparecer erro:**
+
+- **“docker-compose” ou “docker” não é reconhecido:** o Docker Desktop não está instalado ou não está no PATH. Instale o [Docker Desktop para Windows](https://www.docker.com/products/docker-desktop/) e reinicie o terminal.
+- **“Docker Desktop is unable to start” ou “unable to get image … Docker Desktop is unable to start”:** o Docker não está conseguindo iniciar. **Siga o guia [docs/CORRIGIR-DOCKER-DESKTOP.md](CORRIGIR-DOCKER-DESKTOP.md)** – lá está o passo a passo para habilitar WSL 2, virtualização na BIOS e fazer o Docker subir. Depois que o Docker estiver rodando, volte aqui e rode de novo o comando do item 4.
 
 ---
 

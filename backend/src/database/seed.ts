@@ -16,25 +16,16 @@ import { RoutingRule } from '../modules/routing/entities/routing-rule.entity';
 import * as crypto from 'crypto';
 import { EncryptionService } from '../modules/connectors/encryption.service';
 import { ConfigService } from '@nestjs/config';
-
-const entities = [
-  Merchant,
-  User,
-  Role,
-  Permission,
-  ConnectorDefinition,
-  ApiKey,
-  MerchantConnector,
-  RoutingRule,
-];
+import * as path from 'path';
 
 async function run() {
   const config = new ConfigService();
   const encryption = new EncryptionService(config);
 
+  // Carregar todas as entidades (glob) para evitar erro de metadata (Merchant#transactions etc.)
   const ds = new DataSource({
     ...dataSourceOptions,
-    entities,
+    entities: [path.join(__dirname, '../**/*.entity{.ts,.js}')],
   });
   await ds.initialize();
 
@@ -48,8 +39,52 @@ async function run() {
   const ruleRepo = ds.getRepository(RoutingRule);
 
   const permissions = await permRepo.find();
-  if (permissions.length > 0) {
-    console.log('Seed já aplicado (permissions existem).');
+  const existingAdmin = await userRepo.findOne({ where: { email: 'admin@nexgate.local' } });
+  if (permissions.length > 0 && existingAdmin) {
+    console.log('Seed já aplicado (permissions e usuários existem).');
+    await ds.destroy();
+    return;
+  }
+
+  // Se permissions existem mas usuários não (ex.: seed falhou no meio), cria só os usuários de demo
+  if (permissions.length > 0 && !existingAdmin) {
+    console.log('Permissões existem; criando usuários de demo...');
+    const superadminRole = await roleRepo.findOne({ where: { name: 'superadmin' } });
+    const merchantAdminRoleFound = await roleRepo.findOne({ where: { name: 'merchant_admin' } });
+    if (!superadminRole || !merchantAdminRoleFound) throw new Error('Roles não encontradas. Rode migrações e seed do zero.');
+    let merchant = await merchantRepo.findOne({ where: { slug: 'demo' } });
+    if (!merchant) {
+      merchant = merchantRepo.create({
+        slug: 'demo',
+        name: 'Merchant Demo',
+        document: '00000000000191',
+        email: 'demo@nexgate.local',
+        active: true,
+        accentColor: '#2563eb',
+      });
+      await merchantRepo.save(merchant);
+    }
+    const superadminUser = userRepo.create({
+      email: 'admin@nexgate.local',
+      passwordHash: await bcrypt.hash('admin123', 12),
+      name: 'Super Admin',
+      merchantId: null,
+      active: true,
+    });
+    superadminUser.roles = [superadminRole];
+    await userRepo.save(superadminUser);
+    const merchantAdminUser = userRepo.create({
+      email: 'demo@nexgate.local',
+      passwordHash: await bcrypt.hash('demo123', 12),
+      name: 'Demo Admin',
+      merchantId: merchant.id,
+      active: true,
+    });
+    merchantAdminUser.roles = [merchantAdminRoleFound];
+    await userRepo.save(merchantAdminUser);
+    console.log('Usuários de demo criados.');
+    console.log('Superadmin: admin@nexgate.local / admin123');
+    console.log('Merchant demo: demo@nexgate.local / demo123');
     await ds.destroy();
     return;
   }
