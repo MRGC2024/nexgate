@@ -1,0 +1,74 @@
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
+import { User } from '../users/entities/user.entity';
+import { ApiKeysService } from '../api-keys/api-keys.service';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    @InjectRepository(User)
+    private userRepo: Repository<User>,
+    private jwtService: JwtService,
+    private apiKeysService: ApiKeysService,
+  ) {}
+
+  async validateUser(email: string, password: string): Promise<User | null> {
+    const user = await this.userRepo.findOne({
+      where: { email: email.toLowerCase(), active: true },
+      relations: ['roles', 'merchant'],
+    });
+    if (!user || !(await bcrypt.compare(password, user.passwordHash))) return null;
+    return user;
+  }
+
+  async login(email: string, password: string) {
+    const user = await this.validateUser(email, password);
+    if (!user) throw new UnauthorizedException('Email ou senha inválidos');
+    return this.tokensForUser(user);
+  }
+
+  async tokensForUser(user: User) {
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      merchantId: user.merchantId ?? undefined,
+      roles: user.roles?.map((r) => r.name) ?? [],
+      type: 'user' as const,
+    };
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
+    const refreshToken = this.jwtService.sign(
+      { sub: user.id, type: 'refresh' },
+      { expiresIn: '7d' },
+    );
+    return {
+      accessToken,
+      refreshToken,
+      expiresIn: 3600,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        merchantId: user.merchantId,
+        roles: user.roles?.map((r) => r.name) ?? [],
+      },
+    };
+  }
+
+  async refresh(refreshToken: string) {
+    try {
+      const decoded = this.jwtService.verify<{ sub: string; type: string }>(refreshToken);
+      if (decoded.type !== 'refresh') throw new UnauthorizedException();
+      const user = await this.userRepo.findOne({
+        where: { id: decoded.sub, active: true },
+        relations: ['roles', 'merchant'],
+      });
+      if (!user) throw new UnauthorizedException();
+      return this.tokensForUser(user);
+    } catch {
+      throw new UnauthorizedException('Refresh token inválido');
+    }
+  }
+}
