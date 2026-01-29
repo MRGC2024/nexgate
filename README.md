@@ -110,7 +110,8 @@ Eventos: `transaction.created`, `transaction.updated`, `transaction.paid`, `tran
 
 ## Deploy para produção
 
-- **Passo a passo (Railway + Vercel):** [docs/DEPLOY-PASSO-A-PASSO.md](docs/DEPLOY-PASSO-A-PASSO.md) – checklist para subir API, Worker, Postgres e Redis no Railway e frontend na Vercel.
+- **Deploy detalhado (tudo passo a passo):** [docs/DEPLOY-DETALHADO.md](docs/DEPLOY-DETALHADO.md) – cada clique, cada campo, em ordem (Railway + Vercel). Use este se estiver perdido.
+- **Checklist resumido:** [docs/DEPLOY-PASSO-A-PASSO.md](docs/DEPLOY-PASSO-A-PASSO.md).
 - **Detalhes Railway:** [docs/DEPLOY-RAILWAY.md](docs/DEPLOY-RAILWAY.md).
 - **VPS / HiUI:** [docs/DEPLOY.md](docs/DEPLOY.md) para:
 

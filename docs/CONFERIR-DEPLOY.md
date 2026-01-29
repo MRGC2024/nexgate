@@ -1,5 +1,7 @@
 # O que conferir no Railway e na Vercel
 
+**Perdido?** Use primeiro o **[DEPLOY-DETALHADO.md](DEPLOY-DETALHADO.md)** – lá está tudo passo a passo (cada clique, cada campo, em ordem).
+
 Você conectou o repositório no Railway e na Vercel. **Não consigo ver os dashboards** deles daqui; só o seu código. Use este checklist para conferir e corrigir.
 
 ---
