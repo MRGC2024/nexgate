@@ -1,5 +1,10 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api-backend';
 
+/** Para debug: qual URL o front está usando (aparece na tela de login quando dá erro). */
+export function getApiBase(): string {
+  return typeof window !== 'undefined' ? API_BASE : (process.env.NEXT_PUBLIC_API_URL || '/api-backend');
+}
+
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem('accessToken');

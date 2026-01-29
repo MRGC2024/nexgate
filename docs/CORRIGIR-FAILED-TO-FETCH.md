@@ -46,3 +46,21 @@ A API no Railway só aceita requisições de origens que estiverem em **CORS_ORI
 - **Railway:** URL do **site** (Vercel), sem barra no final.
 
 Depois de ajustar os dois, faça **Redeploy** na Vercel e espere o redeploy da API no Railway. Em seguida teste o login de novo.
+
+---
+
+## Ainda dá "Failed to fetch"? Checklist
+
+1. **Redeploy na Vercel depois de mudar variável**  
+   `NEXT_PUBLIC_API_URL` é usada no **build**. Se você alterou depois do último deploy, precisa em **Deployments** → **⋮** → **Redeploy**. Senão o site continua com a URL antiga (ou vazia).
+
+2. **URL que o front está usando**  
+   Na tela de login, quando der o erro, aparece **"URL usada: ..."** e um link **"Abrir /health no navegador"**. Clique nesse link:
+   - Se **abrir e mostrar JSON** (ex.: `{"status":"ok"}`) → a API está no ar; o problema é **CORS** (veja o item 3).
+   - Se **não abrir / der erro de rede** → a URL pode estar errada ou a API no Railway pode estar fora do ar; confira a URL e os logs do serviço da API no Railway.
+
+3. **CORS_ORIGINS tem que ser a URL exata do site**  
+   A URL que está **na barra de endereço** quando você abre o painel (ex.: `https://nexgate.vercel.app` ou `https://nexgate-75eb5jtal-....vercel.app`) tem que estar em **CORS_ORIGINS** no Railway, **igual**, sem barra no final e com `https://`. Se você abre por um link e a URL é outra, coloque essa outra em **CORS_ORIGINS** também (pode ser mais de uma separada por vírgula).
+
+4. **API no Railway**  
+   No Railway, no serviço da **API**, abra **Deployments** ou **Logs** e veja se o deploy está **Success** e se não há erro de variável (ex.: `DATABASE_URL`, `REDIS_URL`). Se a API não sobe, o front sempre dá "Failed to fetch".

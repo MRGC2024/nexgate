@@ -2,18 +2,20 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { login, isSuperadmin } from '@/lib/api';
+import { login, isSuperadmin, getApiBase } from '@/lib/api';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [errorDetail, setErrorDetail] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+    setErrorDetail(null);
     setLoading(true);
     try {
       await login(email, password);
@@ -24,6 +26,7 @@ export default function LoginPage() {
       setError(msg === 'Failed to fetch'
         ? 'Não foi possível conectar à API. Verifique NEXT_PUBLIC_API_URL (Vercel) e CORS_ORIGINS (Railway).'
         : msg);
+      setErrorDetail(msg === 'Failed to fetch' ? getApiBase() : null);
     } finally {
       setLoading(false);
     }
@@ -56,7 +59,25 @@ export default function LoginPage() {
               autoComplete="current-password"
             />
           </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && (
+            <div className="text-sm text-red-600 space-y-1">
+              <p>{error}</p>
+              {errorDetail && (
+                <p className="text-xs break-all text-zinc-600 dark:text-zinc-400">
+                  URL usada: {errorDetail}
+                  <br />
+                  <a
+                    href={`${errorDetail.replace(/\/$/, '')}/health`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline"
+                  >
+                    Abrir /health no navegador
+                  </a>
+                </p>
+              )}
+            </div>
+          )}
           <button type="submit" className="btn-primary w-full" disabled={loading}>
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
