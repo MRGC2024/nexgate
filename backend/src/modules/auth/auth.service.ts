@@ -31,11 +31,14 @@ export class AuthService {
   }
 
   async tokensForUser(user: User) {
+    const rolesList = Array.isArray(user.roles)
+      ? user.roles.map((r) => (r && typeof r === 'object' && 'name' in r ? (r as { name: string }).name : null)).filter(Boolean) as string[]
+      : [];
     const payload = {
       sub: user.id,
-      email: user.email,
+      email: user.email ?? '',
       merchantId: user.merchantId ?? undefined,
-      roles: user.roles?.map((r) => r.name) ?? [],
+      roles: rolesList,
       type: 'user' as const,
     };
     const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
@@ -49,10 +52,10 @@ export class AuthService {
       expiresIn: 3600,
       user: {
         id: user.id,
-        email: user.email,
-        name: user.name,
-        merchantId: user.merchantId,
-        roles: user.roles?.map((r) => r.name) ?? [],
+        email: user.email ?? '',
+        name: user.name ?? '',
+        merchantId: user.merchantId ?? null,
+        roles: rolesList,
       },
     };
   }

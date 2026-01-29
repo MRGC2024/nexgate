@@ -62,7 +62,12 @@ Depois de ajustar os dois, faça **Redeploy** na Vercel e espere o redeploy da A
 3. **CORS_ORIGINS tem que ser a URL exata do site**  
    A URL que está **na barra de endereço** quando você abre o painel (ex.: `https://nexgate.vercel.app` ou `https://nexgate-75eb5jtal-....vercel.app`) tem que estar em **CORS_ORIGINS** no Railway, **igual**, sem barra no final e com `https://`. Se você abre por um link e a URL é outra, coloque essa outra em **CORS_ORIGINS** também (pode ser mais de uma separada por vírgula).
 
-4. **API no Railway – "Application failed to respond"**  
+4. **Login retorna "Internal server error" (500)**  
+   A API está no ar (/api/health ok), mas o login dá 500. Possíveis causas:
+   - **Seed não rodou no banco do Railway:** rode no PC com a mesma DATABASE_URL: `npm run migrate:run` e `npm run seed`. Sem isso não há usuários (admin/demo).
+   - **Erro no código:** após o próximo deploy, abra no Railway o serviço da **API** → **Deployments** → último deploy → **View Logs** (ou **Logs**). O backend agora registra o erro completo; procure a linha com o stack trace para ver a causa.
+
+5. **API no Railway – "Application failed to respond"**  
    Se ao abrir `https://sua-api.up.railway.app/api/health` aparecer **"Application failed to respond"**, a API no Railway **não está subindo**. Causas comuns:
    - **DATABASE_URL:** no Railway o Postgres entrega **DATABASE_URL** (uma URL só). O backend foi ajustado para usar essa variável. Confira no serviço da **API** → **Variables** se existe **DATABASE_URL** (copie do serviço Postgres).
    - **REDIS_URL:** confira se existe **REDIS_URL** (copie do serviço Redis).
