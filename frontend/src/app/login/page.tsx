@@ -20,7 +20,10 @@ export default function LoginPage() {
       if (isSuperadmin()) router.push('/admin');
       else router.push('/merchant');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Falha no login');
+      const msg = err instanceof Error ? err.message : 'Falha no login';
+      setError(msg === 'Failed to fetch'
+        ? 'Não foi possível conectar à API. Verifique NEXT_PUBLIC_API_URL (Vercel) e CORS_ORIGINS (Railway).'
+        : msg);
     } finally {
       setLoading(false);
     }
