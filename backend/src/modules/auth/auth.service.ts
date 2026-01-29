@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,6 +8,8 @@ import { ApiKeysService } from '../api-keys/api-keys.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     @InjectRepository(User)
     private userRepo: Repository<User>,
@@ -20,14 +22,23 @@ export class AuthService {
       where: { email: email.toLowerCase(), active: true },
       relations: ['roles', 'merchant'],
     });
-    if (!user || !(await bcrypt.compare(password, user.passwordHash))) return null;
+    if (!user) return null;
+    if (!user.passwordHash) return null;
+    const ok = await bcrypt.compare(password, user.passwordHash).catch(() => false);
+    if (!ok) return null;
     return user;
   }
 
   async login(email: string, password: string) {
-    const user = await this.validateUser(email, password);
-    if (!user) throw new UnauthorizedException('Email ou senha inválidos');
-    return this.tokensForUser(user);
+    try {
+      const user = await this.validateUser(email, password);
+      if (!user) throw new UnauthorizedException('Email ou senha inválidos');
+      return this.tokensForUser(user);
+    } catch (err) {
+      this.logger.error(`LOGIN_ERROR: ${err instanceof Error ? err.message : String(err)}`);
+      if (err instanceof Error && err.stack) this.logger.error(err.stack);
+      throw err;
+    }
   }
 
   async tokensForUser(user: User) {
