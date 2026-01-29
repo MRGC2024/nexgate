@@ -225,7 +225,7 @@ O frontend (painel) fica na Vercel. Você já importou o repositório; agora é 
 → O serviço da API (e o Worker) precisam ter **Root Directory = `backend`**. Confira em Settings.
 
 **Railway – "Application failed to respond"**  
-→ Falta variável (principalmente **DATABASE_URL** e **REDIS_URL**). Confira Variables e rode de novo o passo 1.6 (migrações e seed).
+→ A API não sobe. Confira **Variables** do serviço da API: **DATABASE_URL** (copie do Postgres) e **REDIS_URL** (copie do Redis). O backend usa **DATABASE_URL** quando existir (formato Railway). Veja os **Logs** do deploy para a mensagem exata. Rode o passo 1.6 (migrações e seed no PC) com a mesma DATABASE_URL.
 
 **Vercel – build falhou / "No package.json"**  
 → **Root Directory** tem que ser **`frontend`**. Confira em Settings → General.

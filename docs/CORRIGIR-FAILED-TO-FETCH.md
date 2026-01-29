@@ -62,5 +62,8 @@ Depois de ajustar os dois, faça **Redeploy** na Vercel e espere o redeploy da A
 3. **CORS_ORIGINS tem que ser a URL exata do site**  
    A URL que está **na barra de endereço** quando você abre o painel (ex.: `https://nexgate.vercel.app` ou `https://nexgate-75eb5jtal-....vercel.app`) tem que estar em **CORS_ORIGINS** no Railway, **igual**, sem barra no final e com `https://`. Se você abre por um link e a URL é outra, coloque essa outra em **CORS_ORIGINS** também (pode ser mais de uma separada por vírgula).
 
-4. **API no Railway**  
-   No Railway, no serviço da **API**, abra **Deployments** ou **Logs** e veja se o deploy está **Success** e se não há erro de variável (ex.: `DATABASE_URL`, `REDIS_URL`). Se a API não sobe, o front sempre dá "Failed to fetch".
+4. **API no Railway – "Application failed to respond"**  
+   Se ao abrir `https://sua-api.up.railway.app/api/health` aparecer **"Application failed to respond"**, a API no Railway **não está subindo**. Causas comuns:
+   - **DATABASE_URL:** no Railway o Postgres entrega **DATABASE_URL** (uma URL só). O backend foi ajustado para usar essa variável. Confira no serviço da **API** → **Variables** se existe **DATABASE_URL** (copie do serviço Postgres).
+   - **REDIS_URL:** confira se existe **REDIS_URL** (copie do serviço Redis).
+   - Abra **Deployments** ou **Logs** do serviço da API e veja a mensagem de erro (ex.: "connect ECONNREFUSED" = banco/Redis não acessível; "Migration failed" = rode migrações no PC com a mesma DATABASE_URL).
