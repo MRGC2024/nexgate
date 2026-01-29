@@ -108,9 +108,10 @@ O gateway envia POST para a URL cadastrada com:
 
 Eventos: `transaction.created`, `transaction.updated`, `transaction.paid`, `transaction.refused`, `transaction.canceled`, `transaction.refunded`, `transaction.chargeback`.
 
-## Deploy
+## Deploy para produção
 
-- **Railway (recomendado para começar):** [docs/DEPLOY-RAILWAY.md](docs/DEPLOY-RAILWAY.md) – API, Worker, Postgres e Redis no Railway; frontend na Vercel ou no Railway.
+- **Passo a passo (Railway + Vercel):** [docs/DEPLOY-PASSO-A-PASSO.md](docs/DEPLOY-PASSO-A-PASSO.md) – checklist para subir API, Worker, Postgres e Redis no Railway e frontend na Vercel.
+- **Detalhes Railway:** [docs/DEPLOY-RAILWAY.md](docs/DEPLOY-RAILWAY.md).
 - **VPS / HiUI:** [docs/DEPLOY.md](docs/DEPLOY.md) para:
 
 - Variáveis de ambiente
