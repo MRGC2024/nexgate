@@ -148,6 +148,24 @@ async function run() {
   merchantSupportRole.permissions = allPerms.filter((p) => ['transactions.read', 'webhooks.read'].includes(p.code));
   await roleRepo.save(merchantSupportRole);
 
+  const gerenciaRole = roleRepo.create({
+    name: 'gerencia',
+    description: 'Gerência',
+  });
+  gerenciaRole.permissions = allPerms.filter((p) =>
+    ['transactions.read', 'webhooks.read', 'merchants.manage', 'users.manage', 'audit.read'].includes(p.code),
+  );
+  await roleRepo.save(gerenciaRole);
+
+  const analiseRiscoRole = roleRepo.create({
+    name: 'analise_risco',
+    description: 'Análise de risco',
+  });
+  analiseRiscoRole.permissions = allPerms.filter((p) =>
+    ['transactions.read', 'merchants.manage', 'audit.read', 'users.manage'].includes(p.code),
+  );
+  await roleRepo.save(analiseRiscoRole);
+
   const superadminUser = userRepo.create({
     email: 'admin@nexgate.local',
     passwordHash: await bcrypt.hash('admin123', 12),

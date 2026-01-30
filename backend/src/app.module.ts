@@ -12,6 +12,7 @@ import { ApiKeysModule } from './modules/api-keys/api-keys.module';
 import { RoutingModule } from './modules/routing/routing.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { HealthModule } from './modules/health/health.module';
+import { FeeConfigModule } from './modules/fee-config/fee-config.module';
 import { getDataSourceConfig } from './database/data-source';
 
 @Module({
@@ -31,6 +32,7 @@ import { getDataSourceConfig } from './database/data-source';
     RoutingModule,
     AuditModule,
     HealthModule,
+    FeeConfigModule,
   ],
 })
 export class AppModule {}

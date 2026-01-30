@@ -2,12 +2,15 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Merchant } from './entities/merchant.entity';
+import { Transaction } from '../transactions/entities/transaction.entity';
 
 @Injectable()
 export class MerchantsService {
   constructor(
     @InjectRepository(Merchant)
     private merchantRepo: Repository<Merchant>,
+    @InjectRepository(Transaction)
+    private txRepo: Repository<Transaction>,
   ) {}
 
   async create(data: Partial<Merchant>): Promise<Merchant> {
@@ -41,5 +44,19 @@ export class MerchantsService {
   async remove(id: string): Promise<void> {
     const m = await this.findOne(id);
     await this.merchantRepo.remove(m);
+  }
+
+  async getFullDetail(id: string): Promise<{
+    merchant: Merchant;
+    transactions: Transaction[];
+    transactionCount: number;
+  }> {
+    const merchant = await this.findOne(id);
+    const [transactions, transactionCount] = await this.txRepo.findAndCount({
+      where: { merchantId: id },
+      order: { createdAt: 'DESC' },
+      take: 100,
+    });
+    return { merchant, transactions, transactionCount };
   }
 }

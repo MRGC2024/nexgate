@@ -33,11 +33,18 @@ export class Merchant {
   @Column({ nullable: true })
   phone: string;
 
+  @Column({ type: 'text', nullable: true })
+  address: string;
+
   @Column({ default: '#2563eb' })
   accentColor: string;
 
   @Column({ default: true })
   active: boolean;
+
+  /** pending_approval | approved | rejected */
+  @Column({ type: 'varchar', default: 'approved', length: 32 })
+  registrationStatus: string;
 
   @Column({ type: 'simple-array', nullable: true })
   tags: string[];

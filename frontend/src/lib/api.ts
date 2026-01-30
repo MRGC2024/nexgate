@@ -42,6 +42,34 @@ export async function login(email: string, password: string) {
   return data;
 }
 
+export type RegisterPayload = {
+  name: string;
+  document: string;
+  email: string;
+  phone: string;
+  password: string;
+};
+
+export async function register(payload: RegisterPayload) {
+  const res = await fetch(`${typeof window !== 'undefined' ? getApiBase() : API_BASE}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: res.statusText }));
+    throw new Error(err.message || String(res.status));
+  }
+  return res.json().catch(() => ({}));
+}
+
+export async function changePassword(currentPassword: string, newPassword: string) {
+  return api<{ message: string }>('/auth/me/password', {
+    method: 'PATCH',
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+}
+
 export function logout() {
   if (typeof window !== 'undefined') {
     localStorage.removeItem('accessToken');
@@ -59,4 +87,16 @@ export function getUser(): { id: string; email: string; name: string; merchantId
 export function isSuperadmin(): boolean {
   const u = getUser();
   return !!u?.roles?.includes('superadmin');
+}
+
+export function hasRole(role: string): boolean {
+  const u = getUser();
+  return !!u?.roles?.includes(role);
+}
+
+/** true se ver painel admin (superadmin, gerencia ou analise_risco) */
+export function isAdminPanel(): boolean {
+  const u = getUser();
+  if (!u?.roles?.length) return false;
+  return u.roles.some((r) => ['superadmin', 'gerencia', 'analise_risco'].includes(r));
 }

@@ -23,11 +23,11 @@ export default function DashboardHeader({
     .toUpperCase() || '?';
 
   return (
-    <header className="border-b border-[var(--border)] bg-[var(--card)]/50 px-6 py-4">
+    <header className="border-b border-[var(--border)] bg-[var(--card)]/50 px-4 sm:px-6 py-3 sm:py-4">
       <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+        <div className="min-w-0">
           {breadcrumbs.length > 0 && (
-            <nav className="text-xs text-[var(--muted)] mb-1">
+            <nav className="text-xs text-[var(--muted)] mb-1 truncate">
               {breadcrumbs.map((b, i) => (
                 <span key={i}>
                   {i > 0 && ' > '}
@@ -42,20 +42,20 @@ export default function DashboardHeader({
               ))}
             </nav>
           )}
-          <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
+          <h1 className="text-lg sm:text-xl font-semibold tracking-tight truncate">{title}</h1>
           {subtitle && (
-            <p className="text-sm text-[var(--muted)] mt-0.5">{subtitle}</p>
+            <p className="text-xs sm:text-sm text-[var(--muted)] mt-0.5 truncate">{subtitle}</p>
           )}
         </div>
-        <div className="flex items-center gap-3 mt-2 sm:mt-0">
-          <div className="flex items-center gap-2 rounded-lg border border-[var(--border)] px-3 py-1.5">
+        <div className="flex items-center gap-2 sm:gap-3 mt-2 sm:mt-0 shrink-0">
+          <div className="flex items-center gap-2 rounded-lg border border-[var(--border)] px-2 sm:px-3 py-1.5 min-w-0">
             <span
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--accent)] text-xs font-medium text-white"
+              className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-xs font-medium text-white"
               title={user?.email}
             >
               {initials}
             </span>
-            <span className="text-sm font-medium truncate max-w-[120px]">
+            <span className="text-xs sm:text-sm font-medium truncate max-w-[100px] sm:max-w-[120px]">
               {user?.name || user?.email || 'Usuário'}
             </span>
           </div>

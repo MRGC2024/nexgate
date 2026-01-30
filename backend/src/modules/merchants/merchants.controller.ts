@@ -21,23 +21,47 @@ export class MerchantsController {
 
   @Get()
   @ApiOperation({ summary: 'Listar merchants' })
-  @Roles('superadmin')
+  @Roles('superadmin', 'gerencia', 'analise_risco')
   async findAll() {
     return this.merchantsService.findAll();
   }
 
+  @Get(':id/full-detail')
+  @ApiOperation({ summary: 'Detalhe completo do merchant: transações' })
+  @Roles('superadmin', 'gerencia', 'analise_risco')
+  async fullDetail(@Param('id') id: string) {
+    return this.merchantsService.getFullDetail(id);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Obter merchant' })
-  @Roles('superadmin', 'merchant_admin')
+  @Roles('superadmin', 'gerencia', 'analise_risco', 'merchant_admin')
   async findOne(@Param('id') id: string) {
     return this.merchantsService.findOne(id);
   }
 
   @Put(':id')
   @ApiOperation({ summary: 'Atualizar merchant' })
-  @Roles('superadmin', 'merchant_admin')
-  async update(@Param('id') id: string, @Body() body: Partial<{ name: string; accentColor: string; active: boolean; tags: string[] }>) {
+  @Roles('superadmin', 'gerencia', 'merchant_admin')
+  async update(
+    @Param('id') id: string,
+    @Body() body: Partial<{ name: string; accentColor: string; active: boolean; tags: string[]; registrationStatus: string; phone: string }>,
+  ) {
     return this.merchantsService.update(id, body);
+  }
+
+  @Post(':id/approve')
+  @ApiOperation({ summary: 'Aprovar cadastro do merchant' })
+  @Roles('superadmin', 'gerencia', 'analise_risco')
+  async approve(@Param('id') id: string) {
+    return this.merchantsService.update(id, { registrationStatus: 'approved', active: true });
+  }
+
+  @Post(':id/reject')
+  @ApiOperation({ summary: 'Rejeitar cadastro do merchant' })
+  @Roles('superadmin', 'gerencia', 'analise_risco')
+  async reject(@Param('id') id: string) {
+    return this.merchantsService.update(id, { registrationStatus: 'rejected', active: false });
   }
 
   @Delete(':id')

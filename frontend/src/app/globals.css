@@ -22,31 +22,48 @@
   --sidebar: #ffffff;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+}
 body {
   @apply bg-[var(--background)] text-[var(--foreground)] antialiased;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+.safe-area-padding {
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
 @layer components {
   .card {
-    @apply rounded-xl border border-[var(--border)] bg-[var(--card)] p-6;
+    @apply rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-6;
   }
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] transition;
+    @apply inline-flex items-center justify-center rounded-lg bg-[var(--accent)] px-4 py-2.5 text-sm font-medium text-white hover:bg-[var(--accent-hover)] transition min-h-[44px] touch-manipulation;
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-lg border border-[var(--border)] bg-transparent px-4 py-2 text-sm font-medium transition hover:opacity-90;
+    @apply inline-flex items-center justify-center rounded-lg border border-[var(--border)] bg-transparent px-4 py-2.5 text-sm font-medium transition hover:opacity-90 min-h-[44px] touch-manipulation;
   }
   .input {
-    @apply w-full rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent;
+    @apply w-full rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent min-h-[44px];
   }
   .table-container {
     @apply overflow-x-auto rounded-xl border border-[var(--border)];
+    -webkit-overflow-scrolling: touch;
+  }
+  .table {
+    @apply min-w-[500px];
   }
   .table th {
-    @apply border-b border-[var(--border)] bg-[var(--card)] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[var(--muted)];
+    @apply border-b border-[var(--border)] bg-[var(--card)] px-3 py-2 sm:px-4 sm:py-3 text-left text-xs font-medium uppercase tracking-wider text-[var(--muted)] whitespace-nowrap;
   }
   .table td {
-    @apply border-b border-[var(--border)] px-4 py-3 text-sm;
+    @apply border-b border-[var(--border)] px-3 py-2 sm:px-4 sm:py-3 text-sm;
   }
   .table tbody tr:hover {
     @apply bg-zinc-800/50;

@@ -1,9 +1,12 @@
-import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { User } from '../users/entities/user.entity';
+import { Merchant } from '../merchants/entities/merchant.entity';
+import { Role } from '../users/entities/role.entity';
 import { ApiKeysService } from '../api-keys/api-keys.service';
 
 @Injectable()
@@ -13,6 +16,10 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private userRepo: Repository<User>,
+    @InjectRepository(Merchant)
+    private merchantRepo: Repository<Merchant>,
+    @InjectRepository(Role)
+    private roleRepo: Repository<Role>,
     private jwtService: JwtService,
     private apiKeysService: ApiKeysService,
   ) {}
@@ -84,5 +91,70 @@ export class AuthService {
     } catch {
       throw new UnauthorizedException('Refresh token inválido');
     }
+  }
+
+  /** Registro público: cria Merchant (pending_approval) + User com role merchant_admin */
+  async register(dto: { name: string; document: string; email: string; phone: string; password: string }) {
+    const emailLower = dto.email.trim().toLowerCase();
+    const existingUser = await this.userRepo.findOne({ where: { email: emailLower } });
+    if (existingUser) throw new ConflictException('Este e-mail já está cadastrado.');
+
+    const baseSlug = dto.name
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '')
+      .slice(0, 30) || 'empresa';
+    const docSuffix = (dto.document || '').replace(/\D/g, '').slice(-6) || crypto.randomBytes(3).toString('hex');
+    let slug = `${baseSlug}-${docSuffix}`;
+    let exists = await this.merchantRepo.findOne({ where: { slug } });
+    while (exists) {
+      slug = `${baseSlug}-${docSuffix}-${crypto.randomBytes(2).toString('hex')}`;
+      exists = await this.merchantRepo.findOne({ where: { slug } });
+    }
+
+    const docDigits = dto.document.replace(/\D/g, '');
+    const phoneDigits = (dto.phone || '').replace(/\D/g, '');
+    const merchantData: Partial<Merchant> = {
+      slug,
+      name: dto.name.trim(),
+      document: docDigits || undefined,
+      email: emailLower,
+      phone: phoneDigits || undefined,
+      active: false,
+      registrationStatus: 'pending_approval',
+    };
+    const merchant = this.merchantRepo.create(merchantData);
+    await this.merchantRepo.save(merchant);
+
+    const merchantAdminRole = await this.roleRepo.findOne({ where: { name: 'merchant_admin' } });
+    if (!merchantAdminRole) throw new ConflictException('Sistema em configuração. Tente mais tarde.');
+
+    const userName = dto.name.trim().slice(0, 100) || emailLower.split('@')[0];
+    const newUser = this.userRepo.create({
+      email: emailLower,
+      passwordHash: await bcrypt.hash(dto.password, 12),
+      name: userName,
+      merchantId: merchant.id,
+      active: true,
+    });
+    newUser.roles = [merchantAdminRole];
+    await this.userRepo.save(newUser);
+
+    this.logger.log(`Register: merchant ${merchant.id} (${slug}), user ${newUser.id}`);
+    return { message: 'Conta criada com sucesso. Aguarde a aprovação do cadastro para acessar o painel.' };
+  }
+
+  async changePassword(userId: string, currentPassword: string, newPassword: string) {
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (!user) throw new UnauthorizedException('Usuário não encontrado');
+    const ok = await bcrypt.compare(currentPassword, user.passwordHash).catch(() => false);
+    if (!ok) throw new UnauthorizedException('Senha atual incorreta');
+    user.passwordHash = await bcrypt.hash(newPassword, 12);
+    await this.userRepo.save(user);
+    this.logger.log(`Password changed for user ${userId}`);
+    return { message: 'Senha alterada com sucesso.' };
   }
 }
