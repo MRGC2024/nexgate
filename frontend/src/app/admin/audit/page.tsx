@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import DashboardHeader from '@/components/DashboardHeader';
 
 export default function AdminAuditPage() {
   const [list, setList] = useState<{ id: string; action: string; resource?: string; resourceId?: string; createdAt: string }[]>([]);
@@ -12,7 +13,12 @@ export default function AdminAuditPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight mb-6">Auditoria</h1>
+      <DashboardHeader
+        title="Auditoria"
+        subtitle="Logs de auditoria do sistema"
+        breadcrumbs={[{ label: 'Home', href: '/admin' }, { label: 'Admin', href: '/admin' }, { label: 'Auditoria' }]}
+      />
+      <div className="p-6">
       <div className="card">
         <div className="table-container">
           <table className="table w-full">
@@ -36,6 +42,7 @@ export default function AdminAuditPage() {
             </tbody>
           </table>
         </div>
+      </div>
       </div>
     </div>
   );

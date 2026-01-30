@@ -69,4 +69,11 @@ export class UsersService {
     user.roles = roles;
     return this.userRepo.save(user);
   }
+
+  async findAllRoles(): Promise<Role[]> {
+    return this.roleRepo.find({
+      relations: ['permissions'],
+      order: { name: 'ASC' },
+    });
+  }
 }

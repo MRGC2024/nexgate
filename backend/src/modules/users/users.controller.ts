@@ -35,6 +35,13 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+  @Get('roles/list')
+  @ApiOperation({ summary: 'Listar cargos (roles)' })
+  @Roles('superadmin', 'merchant_admin')
+  async findAllRoles() {
+    return this.usersService.findAllRoles();
+  }
+
   @Get('merchant/:merchantId')
   @ApiOperation({ summary: 'Listar usuários do merchant' })
   @Roles('superadmin', 'merchant_admin')
