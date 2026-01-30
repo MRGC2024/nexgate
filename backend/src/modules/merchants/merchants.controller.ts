@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, ForbiddenException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { MerchantsService } from './merchants.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { CurrentUser, JwtPayload } from '../../common/decorators/current-user.decorator';
 
 @ApiTags('merchants')
 @Controller('merchants')
@@ -33,6 +34,28 @@ export class MerchantsController {
     return this.merchantsService.getFullDetail(id);
   }
 
+  @Get(':id/documents')
+  @ApiOperation({ summary: 'Listar documentos do merchant' })
+  @Roles('superadmin', 'gerencia', 'analise_risco', 'merchant_admin')
+  async listDocuments(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    const isStaff = user.roles?.some((r) => ['superadmin', 'gerencia', 'analise_risco'].includes(r));
+    if (!isStaff && user.merchantId !== id) throw new ForbiddenException('Só pode ver documentos da própria empresa.');
+    return this.merchantsService.listDocuments(id);
+  }
+
+  @Post(':id/documents')
+  @ApiOperation({ summary: 'Enviar documento do merchant' })
+  @Roles('superadmin', 'gerencia', 'merchant_admin')
+  async addDocument(
+    @Param('id') id: string,
+    @Body() body: { documentType: string; fileUrl: string },
+    @CurrentUser() user: JwtPayload,
+  ) {
+    const isStaff = user.roles?.some((r) => ['superadmin', 'gerencia'].includes(r));
+    if (!isStaff && user.merchantId !== id) throw new ForbiddenException('Só pode enviar documentos da própria empresa.');
+    return this.merchantsService.addDocument(id, body.documentType as any, body.fileUrl);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Obter merchant' })
   @Roles('superadmin', 'gerencia', 'analise_risco', 'merchant_admin')
@@ -41,12 +64,33 @@ export class MerchantsController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Atualizar merchant' })
+  @ApiOperation({ summary: 'Atualizar merchant (admin: tudo; merchant: só phone e pixWithdrawalKey)' })
   @Roles('superadmin', 'gerencia', 'merchant_admin')
   async update(
     @Param('id') id: string,
-    @Body() body: Partial<{ name: string; accentColor: string; active: boolean; tags: string[]; registrationStatus: string; phone: string }>,
+    @Body()
+    body: Partial<{
+      name: string;
+      accentColor: string;
+      active: boolean;
+      tags: string[];
+      registrationStatus: string;
+      phone: string;
+      email: string;
+      address: string;
+      withdrawalLimitCents: number;
+      withdrawalFeePercent: number;
+      withdrawalFeeFixedCents: number;
+      acquirerCode: string;
+      pixWithdrawalKey: string;
+    }>,
+    @CurrentUser() user: JwtPayload,
   ) {
+    const isStaff = user.roles?.some((r) => ['superadmin', 'gerencia'].includes(r));
+    if (!isStaff && user.merchantId !== id) throw new ForbiddenException('Só pode editar a própria empresa.');
+    if (!isStaff && user.merchantId === id) {
+      body = { phone: body?.phone, pixWithdrawalKey: body?.pixWithdrawalKey };
+    }
     return this.merchantsService.update(id, body);
   }
 

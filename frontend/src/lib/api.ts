@@ -100,3 +100,11 @@ export function isAdminPanel(): boolean {
   if (!u?.roles?.length) return false;
   return u.roles.some((r) => ['superadmin', 'gerencia', 'analise_risco'].includes(r));
 }
+
+/** Quem tem empresa (merchantId) e NÃO é superadmin SEMPRE usa painel da empresa, nunca admin */
+export function shouldUseMerchantPanel(): boolean {
+  const u = getUser();
+  if (!u) return false;
+  if (u.merchantId && !isSuperadmin()) return true;
+  return false;
+}

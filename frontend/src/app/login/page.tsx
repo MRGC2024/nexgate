@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { login, isAdminPanel, getApiBase } from '@/lib/api';
+import { login, isAdminPanel, shouldUseMerchantPanel, getApiBase } from '@/lib/api';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -20,7 +20,8 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password);
-      if (isAdminPanel()) router.push('/admin');
+      if (shouldUseMerchantPanel()) router.push('/merchant');
+      else if (isAdminPanel()) router.push('/admin');
       else router.push('/merchant');
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Falha no login';

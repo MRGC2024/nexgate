@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { getUser, isAdminPanel } from '@/lib/api';
+import { getUser, isAdminPanel, shouldUseMerchantPanel } from '@/lib/api';
 import { Zap, Shield, CreditCard, BarChart3, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 export default function Home() {
@@ -12,7 +12,8 @@ export default function Home() {
   useEffect(() => {
     const user = getUser();
     if (user) {
-      if (isAdminPanel()) router.replace('/admin');
+      if (shouldUseMerchantPanel()) router.replace('/merchant');
+      else if (isAdminPanel()) router.replace('/admin');
       else router.replace('/merchant');
     }
   }, [router]);

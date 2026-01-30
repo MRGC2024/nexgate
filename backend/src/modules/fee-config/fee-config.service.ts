@@ -37,4 +37,26 @@ export class FeeConfigService {
     await this.repo.save(row);
     return row.config;
   }
+
+  /** Taxas da empresa: se não tiver config própria, usa o padrão global */
+  async getMerchantConfig(merchantId: string): Promise<FeeConfigData> {
+    const row = await this.repo.findOne({ where: { scope: 'merchant', merchantId } });
+    if (!row || !row.config) return this.getGlobalConfig();
+    const global = await this.getGlobalConfig();
+    return { ...global, ...row.config } as FeeConfigData;
+  }
+
+  /** Atualizar taxas da empresa (override do padrão) */
+  async updateMerchantConfig(merchantId: string, config: Partial<FeeConfigData>): Promise<FeeConfigData> {
+    let row = await this.repo.findOne({ where: { scope: 'merchant', merchantId } });
+    const global = await this.getGlobalConfig();
+    if (!row) {
+      row = this.repo.create({ scope: 'merchant', merchantId, config: { ...global, ...config } });
+      await this.repo.save(row);
+    } else {
+      row.config = { ...global, ...row.config, ...config } as FeeConfigData;
+      await this.repo.save(row);
+    }
+    return row.config;
+  }
 }

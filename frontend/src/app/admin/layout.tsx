@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getUser, isAdminPanel } from '@/lib/api';
+import { getUser, isAdminPanel, shouldUseMerchantPanel } from '@/lib/api';
 import Sidebar, { SidebarTrigger } from '@/components/Sidebar';
 
 export default function AdminLayout({
@@ -20,7 +20,8 @@ export default function AdminLayout({
       router.replace('/login');
       return;
     }
-    if (!isAdminPanel()) router.replace('/merchant');
+    if (shouldUseMerchantPanel()) router.replace('/merchant');
+    else if (!isAdminPanel()) router.replace('/merchant');
   }, [router]);
 
   return (

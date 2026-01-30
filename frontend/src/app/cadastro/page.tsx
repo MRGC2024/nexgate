@@ -78,10 +78,10 @@ export default function CadastroPage() {
           </div>
           <h1 className="text-2xl font-semibold mb-2">Conta criada com sucesso</h1>
           <p className="text-[var(--muted)] mb-6">
-            Seu cadastro foi enviado para análise. Em até 48 horas úteis você receberá um e-mail com o resultado. Após a aprovação, você poderá acessar o painel e enviar os documentos complementares.
+            Sua conta foi criada. Faça login e envie os documentos (frente/verso do documento, selfie, comprovante MEI ou contrato social, comprovante de conta) na aba &quot;Documentos&quot; do painel. Após o envio, sua conta será analisada em até 48h úteis.
           </p>
           <Link href="/login" className="btn-primary inline-block">
-            Ir para o login
+            Ir para o login e enviar documentos
           </Link>
         </div>
       </div>

@@ -43,6 +43,7 @@ const merchantNav = [
   { href: '/merchant/transactions', label: 'Transações', icon: ShoppingCart },
   { href: '/merchant/taxas', label: 'Taxas', icon: Percent },
   { href: '/merchant/empresa', label: 'Minha Empresa', icon: Building2 },
+  { href: '/merchant/documentos', label: 'Documentos', icon: FileText },
   { href: '/merchant/meus-dados', label: 'Meus dados', icon: UserCircle },
   { href: '/merchant/api-keys', label: 'Integrações', icon: Key },
   { href: '/merchant/connectors', label: 'Conectores', icon: Key },

@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Merchant } from './entities/merchant.entity';
+import { MerchantDocument, DocumentType } from './entities/merchant-document.entity';
 import { Transaction } from '../transactions/entities/transaction.entity';
 
 @Injectable()
@@ -9,6 +10,8 @@ export class MerchantsService {
   constructor(
     @InjectRepository(Merchant)
     private merchantRepo: Repository<Merchant>,
+    @InjectRepository(MerchantDocument)
+    private docRepo: Repository<MerchantDocument>,
     @InjectRepository(Transaction)
     private txRepo: Repository<Transaction>,
   ) {}
@@ -58,5 +61,14 @@ export class MerchantsService {
       take: 100,
     });
     return { merchant, transactions, transactionCount };
+  }
+
+  async listDocuments(merchantId: string): Promise<MerchantDocument[]> {
+    return this.docRepo.find({ where: { merchantId }, order: { createdAt: 'DESC' } });
+  }
+
+  async addDocument(merchantId: string, documentType: DocumentType, fileUrl: string): Promise<MerchantDocument> {
+    const doc = this.docRepo.create({ merchantId, documentType, fileUrl });
+    return this.docRepo.save(doc);
   }
 }

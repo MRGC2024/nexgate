@@ -46,6 +46,26 @@ export class Merchant {
   @Column({ type: 'varchar', default: 'approved', length: 32 })
   registrationStatus: string;
 
+  /** Limite máximo de saque em centavos (ex.: 500000 = R$ 5.000) */
+  @Column({ type: 'int', nullable: true })
+  withdrawalLimitCents: number | null;
+
+  /** Taxa de saque: percentual */
+  @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })
+  withdrawalFeePercent: number;
+
+  /** Taxa de saque: valor fixo em centavos */
+  @Column({ type: 'int', default: 0 })
+  withdrawalFeeFixedCents: number;
+
+  /** Código do adquirente/subadquirente (ex.: mock_pix, cielo, rede) */
+  @Column({ type: 'varchar', nullable: true, length: 64 })
+  acquirerCode: string | null;
+
+  /** Chave Pix para receber saque (CPF, CNPJ, e-mail ou chave aleatória) */
+  @Column({ type: 'varchar', nullable: true, length: 256 })
+  pixWithdrawalKey: string | null;
+
   @Column({ type: 'simple-array', nullable: true })
   tags: string[];
 

@@ -12,12 +12,14 @@ type Merchant = {
   email?: string;
   phone?: string;
   address?: string;
+  pixWithdrawalKey?: string | null;
 };
 
 export default function MeusDadosPage() {
   const user = getUser();
   const [merchant, setMerchant] = useState<Merchant | null>(null);
   const [phone, setPhone] = useState('');
+  const [pixWithdrawalKey, setPixWithdrawalKey] = useState('');
   const [phoneSaving, setPhoneSaving] = useState(false);
   const [phoneMessage, setPhoneMessage] = useState<string | null>(null);
 
@@ -33,6 +35,7 @@ export default function MeusDadosPage() {
       .then((m) => {
         setMerchant(m);
         setPhone(m.phone ? formatPhone(String(m.phone).replace(/\D/g, '')) : '');
+        setPixWithdrawalKey(m.pixWithdrawalKey ?? '');
       })
       .catch(() => setMerchant(null));
   }, [user?.merchantId]);
@@ -52,9 +55,9 @@ export default function MeusDadosPage() {
     try {
       await api(`/merchants/${user.merchantId}`, {
         method: 'PUT',
-        body: JSON.stringify({ phone: phone.replace(/\D/g, '') }),
+        body: JSON.stringify({ phone: phone.replace(/\D/g, ''), pixWithdrawalKey: pixWithdrawalKey.trim() || null }),
       });
-      setPhoneMessage('Telefone atualizado com sucesso.');
+      setPhoneMessage('Telefone e chave Pix atualizados com sucesso.');
     } catch {
       setPhoneMessage('Erro ao salvar. Tente novamente.');
     } finally {
@@ -122,9 +125,9 @@ export default function MeusDadosPage() {
           </dl>
         </div>
 
-        {/* Telefone editável */}
+        {/* Telefone e Chave Pix editáveis */}
         <div className="card">
-          <h2 className="text-lg font-semibold mb-4">Telefone</h2>
+          <h2 className="text-lg font-semibold mb-4">Telefone e Chave Pix para saque</h2>
           <form onSubmit={handleSavePhone} className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1">Telefone</label>
@@ -136,13 +139,24 @@ export default function MeusDadosPage() {
                 placeholder="(11) 99999-9999"
               />
             </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Chave Pix para receber saque</label>
+              <input
+                type="text"
+                value={pixWithdrawalKey}
+                onChange={(e) => setPixWithdrawalKey(e.target.value)}
+                className="input max-w-md"
+                placeholder="CPF, CNPJ, e-mail ou chave aleatória"
+              />
+              <p className="text-xs text-[var(--muted)] mt-1">Cadastre a chave Pix para onde deseja receber os saques (cash-out).</p>
+            </div>
             {phoneMessage && (
               <p className={phoneMessage.includes('sucesso') ? 'text-sm text-green-500' : 'text-sm text-red-500'}>
                 {phoneMessage}
               </p>
             )}
             <button type="submit" className="btn-primary" disabled={phoneSaving}>
-              {phoneSaving ? 'Salvando...' : 'Salvar telefone'}
+              {phoneSaving ? 'Salvando...' : 'Salvar'}
             </button>
           </form>
         </div>
